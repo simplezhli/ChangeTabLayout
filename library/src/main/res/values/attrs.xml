@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <declare-styleable name="ChangeTabLayout">
+    <attr name="ctl_tabViewColor" format="color"/>
+    <attr name="ctl_indicatorColor" format="color"/>
+    <attr name="ctl_leftBorderColor" format="color"/>
+    <attr name="ctl_tabViewHeight" format="dimension"/>
+    <attr name="ctl_tabImageHeight" format="dimension"/>
+    <attr name="ctl_tabViewShadowColor" format="color"/>
+    <attr name="ctl_indicatorPadding" format="dimension"/>
+    <attr name="ctl_defaultTabTextSize" format="dimension"/>
+    <attr name="ctl_leftBorderThickness" format="dimension"/>
+    <attr name="ctl_defaultTabTextColor" format="color|reference"/>
+    <attr name="ctl_selectedTabTextColor" format="color|reference"/>
+    <attr name="ctl_defaultTabImageColor" format="color|reference"/>
+    <attr name="ctl_selectedTabImageColor" format="color|reference"/>
+  </declare-styleable>
+</resources>
