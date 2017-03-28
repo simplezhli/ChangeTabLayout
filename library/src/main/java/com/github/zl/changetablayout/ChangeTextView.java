@@ -23,27 +23,27 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
-import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.View;
 
 /**
  * 作者：weilu on 2017/3/17 11:21
  */
 
-class ChangeTextView extends AppCompatTextView {
+class ChangeTextView extends View {
 
     private Paint mPaint;
     private float mTextWidth;
     private float mTextHeight;
     private float textSize;
+    private String text = "";
     private int indicatorPadding;
     private int defaultTabTextColor;
     private int selectedTabTextColor;
 
     private int level;
-    private boolean flag; //用于区分点击与滑动
 
     private PorterDuffXfermode mode;
 
@@ -93,40 +93,38 @@ class ChangeTextView extends AppCompatTextView {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if(flag){
-            super.onDraw(canvas);
+        super.onDraw(canvas);
+
+        resetting();
+        mPaint.setXfermode(null);
+        mPaint.setColor(defaultTabTextColor);
+
+        Bitmap srcBitmap = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas srcCanvas = new Canvas(srcBitmap);
+
+        RectF rectF;
+        //文字随指示器位置进行颜色变化
+        if (level == 10000 || level == 0) {
+            rectF = new RectF(0, 0, 0, 0);
+        }else if (level == 5000) {
+            rectF = new RectF(0, 0, mTextWidth, getMeasuredHeight());
         }else{
-            resetting();
-            mPaint.setXfermode(null);
-            mPaint.setColor(defaultTabTextColor);
+            float value = (level / 5000f) - 1f;
 
-            Bitmap srcBitmap = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-            Canvas srcCanvas = new Canvas(srcBitmap);
-
-            RectF rectF;
-            //文字随指示器位置进行颜色变化
-            if (level == 10000 || level == 0) {
-                rectF = new RectF(0, 0, 0, 0);
-            }else if (level == 5000) {
-                rectF = new RectF(0, 0, mTextWidth, getMeasuredHeight());
+            if(value > 0){
+                rectF = new RectF(0, getMeasuredHeight() * value + indicatorPadding, mTextWidth, getMeasuredHeight());
             }else{
-                float value = (level / 5000f) - 1f;
-
-                if(value > 0){
-                    rectF = new RectF(0, getMeasuredHeight() * value + indicatorPadding, mTextWidth, getMeasuredHeight());
-                }else{
-                    rectF = new RectF(0, 0, mTextWidth, getMeasuredHeight() * (1 - Math.abs(value)) - indicatorPadding);
-                }
-
+                rectF = new RectF(0, 0, mTextWidth, getMeasuredHeight() * (1 - Math.abs(value)) - indicatorPadding);
             }
-            srcCanvas.drawText(getText().toString(), 0, (getMeasuredHeight() + mTextHeight)/2, mPaint);
 
-            mPaint.setXfermode(mode);
-            mPaint.setColor(selectedTabTextColor);
-
-            srcCanvas.drawRect(rectF, mPaint);
-            canvas.drawBitmap(srcBitmap, 0, 0, null);
         }
+        srcCanvas.drawText(text, 0, (getMeasuredHeight() + mTextHeight)/2, mPaint);
+
+        mPaint.setXfermode(mode);
+        mPaint.setColor(selectedTabTextColor);
+
+        srcCanvas.drawRect(rectF, mPaint);
+        canvas.drawBitmap(srcBitmap, 0, 0, null);
 
     }
 
@@ -146,16 +144,16 @@ class ChangeTextView extends AppCompatTextView {
         //文字精确高度
         Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
         mTextHeight = textSize - fontMetrics.descent;
-        mTextWidth  = mPaint.measureText(getText().toString());
-    }
-
-    void setFlag(boolean flag){
-        this.flag = flag;
-        invalidate();
+        mTextWidth  = mPaint.measureText(text);
     }
 
     void setLevel(int level){
         this.level = level;
+        invalidate();
+    }
+
+    void setText(String text){
+        this.text = text;
         invalidate();
     }
 
