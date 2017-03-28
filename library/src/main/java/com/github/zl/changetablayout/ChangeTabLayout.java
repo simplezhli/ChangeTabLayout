@@ -16,7 +16,6 @@
 package com.github.zl.changetablayout;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.VerticalViewPager;
@@ -56,7 +55,6 @@ public class ChangeTabLayout extends ScrollView{
 
     private float density = 0;
     private AttributeSet attrs;
-    private boolean flag = true; //用于防止page快速滑动对tabView的影响。
     private int page = 0; //当前页数位置
 
     public ChangeTabLayout(Context context) {
@@ -168,9 +166,7 @@ public class ChangeTabLayout extends ScrollView{
 
             if (i == viewPager.getCurrentItem()) {
                 ChangeTextView textView = (ChangeTextView) tabView.getChildAt(1);
-                textView.setFlag(true);
-                textView.setSelected(true);
-                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, tabViewTextSize * 1.1f);
+                textView.setLevel(5000);
             }
 
             lastPosition[i] = ARRAY_INITIAL_VALUE;
@@ -202,11 +198,7 @@ public class ChangeTabLayout extends ScrollView{
         imageView.setImageDrawable(drawable);
 
         ChangeTextView textView = new ChangeTextView(getContext(), attrs);
-        textView.setText(title);
-        textView.setGravity(Gravity.CENTER_VERTICAL);
-        ColorStateList cls = new ColorStateList(new int[][]{{android.R.attr.state_selected},{0}}, new int[]{selectedTabTextColor, defaultTabTextColor});
-        textView.setTextColor(cls);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, tabViewTextSize);
+        textView.setText(title.toString());
         textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
         mLinearLayout.addView(imageView);
@@ -231,9 +223,6 @@ public class ChangeTabLayout extends ScrollView{
         @Override
         public void onPageScrollStateChanged(int state) {
             scrollState = state;
-            if (scrollState == ViewPager.SCROLL_STATE_IDLE) {
-                flag = true;
-            }
         }
 
         @Override
@@ -245,13 +234,10 @@ public class ChangeTabLayout extends ScrollView{
 
             for (int i = 0, size = tabStrip.getChildCount(); i < size; i++) {
                 ChangeTextView textView = (ChangeTextView) ((LinearLayout) tabStrip.getChildAt(i)).getChildAt(1);
-                textView.setFlag(true);
                 if (position == i) {
-                    textView.setSelected(true);
-                    textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, tabViewTextSize * 1.1f); //选中字体默认1.1倍
+                    textView.setLevel(5000);
                 }else {
-                    textView.setSelected(false);
-                    textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, tabViewTextSize);
+                    textView.setLevel(0);
                 }
             }
         }
@@ -266,29 +252,25 @@ public class ChangeTabLayout extends ScrollView{
 
         LinearLayout selectedTab = (LinearLayout) getTabAt(tabIndex);
 
-        if (flag) {
-            ImageView imageView = (ImageView) selectedTab.getChildAt(0);
-            ChangeTextView textView = (ChangeTextView) selectedTab.getChildAt(1);
-            textView.setFlag(false);
-            if (0f <= positionOffset && positionOffset < 1f) {
-                if(!tabLayoutState){
-                    ((RevealDrawable)imageView.getDrawable()).setOrientation(RevealDrawable.VERTICAL);
-                    imageView.setImageLevel((int) (positionOffset * 5000 + 5000));
-                }
-                textView.setLevel((int) (positionOffset * 5000 + 5000));
+        ImageView imageView = (ImageView) selectedTab.getChildAt(0);
+        ChangeTextView textView = (ChangeTextView) selectedTab.getChildAt(1);
+        if (0f <= positionOffset && positionOffset < 1f) {
+            if(!tabLayoutState){
+                ((RevealDrawable)imageView.getDrawable()).setOrientation(RevealDrawable.VERTICAL);
+                imageView.setImageLevel((int) (positionOffset * 5000 + 5000));
             }
+            textView.setLevel((int) (positionOffset * 5000 + 5000));
+        }
 
-            if(!(tabIndex + 1 >= tabStripChildCount)){
-                LinearLayout tab = (LinearLayout) getTabAt(tabIndex + 1);
-                ImageView img = (ImageView) tab.getChildAt(0);
-                ChangeTextView text = (ChangeTextView) tab.getChildAt(1);
-                text.setFlag(false);
-                if(!tabLayoutState){
-                    ((RevealDrawable)img.getDrawable()).setOrientation(RevealDrawable.VERTICAL);
-                    img.setImageLevel((int) (positionOffset * 5000));
-                }
-                text.setLevel((int) (positionOffset * 5000));
+        if(!(tabIndex + 1 >= tabStripChildCount)){
+            LinearLayout tab = (LinearLayout) getTabAt(tabIndex + 1);
+            ImageView img = (ImageView) tab.getChildAt(0);
+            ChangeTextView text = (ChangeTextView) tab.getChildAt(1);
+            if(!tabLayoutState){
+                ((RevealDrawable)img.getDrawable()).setOrientation(RevealDrawable.VERTICAL);
+                img.setImageLevel((int) (positionOffset * 5000));
             }
+            text.setLevel((int) (positionOffset * 5000));
         }
 
         int titleOffset = tabViewHeight * 2;
@@ -341,7 +323,6 @@ public class ChangeTabLayout extends ScrollView{
 
             for (int i = 0, size = tabStrip.getChildCount(); i < size; i++) {
                 ChangeTextView textView = (ChangeTextView) ((LinearLayout) tabStrip.getChildAt(i)).getChildAt(1);
-                textView.setFlag(true);
                 if (0f < positionOffset && positionOffset <= 1f) {
                     textView.setAlpha((1 - positionOffset));
                     if(positionOffset > 0.9f){
@@ -366,12 +347,11 @@ public class ChangeTabLayout extends ScrollView{
                 setTabLayoutState(true);
                 return;
             }
-            flag = false;
             for (int i = 0, size = tabStrip.getChildCount(); i < size; i++) {
                 if (v.getParent() == tabStrip.getChildAt(i)) {
 
                     viewPager.setCurrentItem(i);
-                    //viewPager.setCurrentItem(i, false);
+//                    viewPager.setCurrentItem(i, false);
                     if (onTabClickListener != null) {
                         onTabClickListener.onTabClicked(i);
                     }
