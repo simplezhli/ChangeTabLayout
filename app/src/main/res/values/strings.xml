@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ChangeTabLayout</string>
+    <string name="action_switch">开关</string>
+    <string name="action_cut">切换</string>
+</resources>
