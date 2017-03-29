@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String [] title = new String[] {
             "毛笔", "音乐", "风车", "房子", "通知",
-            "笑脸", "花", "照相机", "路由器", "baidu熊掌",
+            "笑脸", "花", "照相机", "路由器", "熊掌熊掌熊掌熊掌熊掌熊掌",
             "大山", "灰机", "电影", "汽车", "太阳"
     };
 
