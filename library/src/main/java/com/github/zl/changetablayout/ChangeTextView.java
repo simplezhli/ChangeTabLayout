@@ -23,6 +23,9 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -34,18 +37,15 @@ import android.view.View;
 
 class ChangeTextView extends View {
 
+    private int level;
     private Paint mPaint;
-    private float mTextWidth;
-    private float mTextHeight;
+    private TextPaint mTextPaint;
     private float textSize;
     private String text = "";
     private int indicatorPadding;
     private int defaultTabTextColor;
     private int selectedTabTextColor;
-
-    private int level;
-
-    private PorterDuffXfermode mode;
+    private StaticLayout mStaticLayout;
 
     public ChangeTextView(Context context) {
         this(context, null);
@@ -78,10 +78,14 @@ class ChangeTextView extends View {
         this.defaultTabTextColor = defaultTabTextColor;
         this.selectedTabTextColor = selectedTabTextColor;
 
+        mTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        mTextPaint.setTextAlign(Paint.Align.LEFT);
+
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaint.setTextAlign(Paint.Align.LEFT);
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        mode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN); //取两层绘制交集,显示上层。
+        PorterDuffXfermode mode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN); //取两层绘制交集,显示上层。
+        mPaint.setXfermode(mode);
+
     }
 
     @Override
@@ -94,10 +98,7 @@ class ChangeTextView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
         resetting();
-        mPaint.setXfermode(null);
-        mPaint.setColor(defaultTabTextColor);
 
         Bitmap srcBitmap = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(), Bitmap.Config.ARGB_8888);
         Canvas srcCanvas = new Canvas(srcBitmap);
@@ -107,25 +108,25 @@ class ChangeTextView extends View {
         if (level == 10000 || level == 0) {
             rectF = new RectF(0, 0, 0, 0);
         }else if (level == 5000) {
-            rectF = new RectF(0, 0, mTextWidth, getMeasuredHeight());
+            rectF = new RectF(0, 0, getMeasuredWidth(), getMeasuredHeight());
         }else{
             float value = (level / 5000f) - 1f;
 
             if(value > 0){
-                rectF = new RectF(0, getMeasuredHeight() * value + indicatorPadding, mTextWidth, getMeasuredHeight());
+                rectF = new RectF(0, getMeasuredHeight() * value + indicatorPadding, getMeasuredWidth(), getMeasuredHeight());
             }else{
-                rectF = new RectF(0, 0, mTextWidth, getMeasuredHeight() * (1 - Math.abs(value)) - indicatorPadding);
+                rectF = new RectF(0, 0, getMeasuredWidth(), getMeasuredHeight() * (1 - Math.abs(value)) - indicatorPadding);
             }
-
         }
-        srcCanvas.drawText(text, 0, (getMeasuredHeight() + mTextHeight)/2, mPaint);
 
-        mPaint.setXfermode(mode);
+        srcCanvas.save(); //为了保存之前的画布状态
+        srcCanvas.translate(0, (getMeasuredHeight() - mStaticLayout.getHeight()) / 2);
+        mStaticLayout.draw(srcCanvas);
+        srcCanvas.restore(); //把当前画布返回到上一个save()状态之前，重置平移部分。
+
         mPaint.setColor(selectedTabTextColor);
-
         srcCanvas.drawRect(rectF, mPaint);
         canvas.drawBitmap(srcBitmap, 0, 0, null);
-
     }
 
     private void resetting(){
@@ -140,11 +141,14 @@ class ChangeTextView extends View {
             size = textSize + textSize * (1 - Math.abs(value))* 0.1f;
         }
 
-        mPaint.setTextSize(size);
-        //文字精确高度
-        Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
-        mTextHeight = textSize - fontMetrics.descent;
-        mTextWidth  = mPaint.measureText(text);
+        mTextPaint.setTextSize(size);
+        mTextPaint.setColor(defaultTabTextColor);
+        int num = (getMeasuredWidth() - indicatorPadding) / (int) size; // 一行可以放下的字数，默认放置两行文字
+
+//        mStaticLayout = new StaticLayout(text, mTextPaint, getMeasuredWidth() - indicatorPadding, Layout.Alignment.ALIGN_NORMAL, 1.0F, 0.0F, false);
+        mStaticLayout = new StaticLayout(text, 0, text.length() > num * 2 ?  num * 2 : text.length(), mTextPaint, getMeasuredWidth() - indicatorPadding,
+                Layout.Alignment.ALIGN_NORMAL, 1.0F, 0.0F, false);
+
     }
 
     void setLevel(int level){

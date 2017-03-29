@@ -11,7 +11,6 @@
 
     <android.support.v4.view.VerticalViewPager
         android:id="@+id/viewpager"
-        android:background="@color/bg"
         android:layout_width="match_parent"
         android:fadingEdge="none"
         android:overScrollMode="never"

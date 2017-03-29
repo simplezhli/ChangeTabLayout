@@ -15,11 +15,11 @@ ChangeTabLayout是模仿乐视LIVE App主界面TabLayout效果。
 #### `ChangeTabLayout`在打开状态时
 
 - 垂直方向切换时，文字的颜色大小变化。
-- 水平方向切换时，文字的渐变与图片的颜色变化。
+- 水平方向切换时，文字的渐变与图片的变化。
 
 #### `ChangeTabLayout`在收起状态时
 
-- 垂直方向切换时，图片颜色的变化。
+- 垂直方向切换时，图片的变化。
 - 点击`ChangeTabLayout`，切换为打开状态。
 
 ## 使用说明
@@ -96,7 +96,7 @@ app:ctl_selectedTabImageColor | 默认为#cf212b | Tab中图片选中颜色
 
 ## TODO
 
-1. `TabView`中兼容多行文字。
+1. ~~`TabView`中兼容多行文字。~~
 2. 竖屏状态下`ViewPage`的`onPageScrolled`监听不正常。
 
 ## Thanks For
