@@ -38,7 +38,18 @@ import static com.github.zl.changetablayout.Constant.ARRAY_INITIAL_VALUE;
 
 public class ChangeTabLayout extends ScrollView{
 
-    private boolean tabLayoutState = true; //tab收起与展开
+    /**
+     * tab收起与展开
+     */
+    private boolean tabLayoutState = true;
+    /**
+     * tabLayout是否可以点击
+     */
+    private boolean tabLayoutIsClick = true;
+    /**
+     * tabView切换是否需要文字实时变化
+     */
+    private boolean flag = false;
     private final int tabViewHeight;
     private final int tabImageHeight;
     private float tabViewTextSize;
@@ -124,6 +135,7 @@ public class ChangeTabLayout extends ScrollView{
         page = 0;
         if (viewPager != null && viewPager.getAdapter() != null) {
             viewPager.addOnPageChangeListener(new InternalViewPagerListener());
+            viewPager.setOnTouchListener(new ViewPagerTouchListener());
             lastPosition = new int[viewPager.getAdapter().getCount()];
             lastValue = new float[viewPager.getAdapter().getCount()];
             if(icon != null){
@@ -243,6 +255,19 @@ public class ChangeTabLayout extends ScrollView{
         }
     }
 
+    private class ViewPagerTouchListener implements OnTouchListener{
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    flag = true;
+                    break;
+            }
+            return false;
+        }
+    }
+
     private void scrollToTab(int tabIndex, float positionOffset) {
 
         final int tabStripChildCount = tabStrip.getChildCount();
@@ -250,27 +275,35 @@ public class ChangeTabLayout extends ScrollView{
             return;
         }
 
+        if(flag){
+
+        }
         LinearLayout selectedTab = (LinearLayout) getTabAt(tabIndex);
 
-        ImageView imageView = (ImageView) selectedTab.getChildAt(0);
-        ChangeTextView textView = (ChangeTextView) selectedTab.getChildAt(1);
         if (0f <= positionOffset && positionOffset < 1f) {
             if(!tabLayoutState){
+                ImageView imageView = (ImageView) selectedTab.getChildAt(0);
                 ((RevealDrawable)imageView.getDrawable()).setOrientation(RevealDrawable.VERTICAL);
                 imageView.setImageLevel((int) (positionOffset * 5000 + 5000));
             }
-            textView.setLevel((int) (positionOffset * 5000 + 5000));
+            if(flag){
+                ChangeTextView textView = (ChangeTextView) selectedTab.getChildAt(1);
+                textView.setLevel((int) (positionOffset * 5000 + 5000));
+            }
         }
 
         if(!(tabIndex + 1 >= tabStripChildCount)){
             LinearLayout tab = (LinearLayout) getTabAt(tabIndex + 1);
-            ImageView img = (ImageView) tab.getChildAt(0);
-            ChangeTextView text = (ChangeTextView) tab.getChildAt(1);
+
             if(!tabLayoutState){
+                ImageView img = (ImageView) tab.getChildAt(0);
                 ((RevealDrawable)img.getDrawable()).setOrientation(RevealDrawable.VERTICAL);
                 img.setImageLevel((int) (positionOffset * 5000));
             }
-            text.setLevel((int) (positionOffset * 5000));
+            if(flag){
+                ChangeTextView text = (ChangeTextView) tab.getChildAt(1);
+                text.setLevel((int) (positionOffset * 5000));
+            }
         }
 
         int titleOffset = tabViewHeight * 2;
@@ -293,6 +326,7 @@ public class ChangeTabLayout extends ScrollView{
         if (position - lastPosition[page] > 0) {
             if (lastPosition[page] != ARRAY_INITIAL_VALUE){
                 tabLayoutState = false; //每次向左滑动结束时，进入判断，菜单关闭状态
+                tabLayoutIsClick = true;
             }
         }else if(position - lastPosition[page] < 0){
             if(lastValue[page] - positionOffset < 0){
@@ -327,8 +361,10 @@ public class ChangeTabLayout extends ScrollView{
                     textView.setAlpha((1 - positionOffset));
                     if(positionOffset > 0.9f){
                         textView.setVisibility(INVISIBLE);
+                        tabLayoutIsClick = false; //防止同时点击，导致状态混乱
                     }else{
                         textView.setVisibility(VISIBLE);
+                        tabLayoutIsClick = true;
                     }
                 }
             }
@@ -343,14 +379,21 @@ public class ChangeTabLayout extends ScrollView{
     private class InternalTabClickListener implements OnClickListener {
         @Override
         public void onClick(View v) {
+
             if(!tabLayoutState){ // 收起状态点击，切换为打开状态
                 setTabLayoutState(true);
                 return;
             }
+
+            if(!tabLayoutIsClick){ //只阻止打开状态时点击
+                return;
+            }
+
             for (int i = 0, size = tabStrip.getChildCount(); i < size; i++) {
                 if (v.getParent() == tabStrip.getChildAt(i)) {
 
                     viewPager.setCurrentItem(i);
+                    flag = false;
 //                    viewPager.setCurrentItem(i, false);
                     if (onTabClickListener != null) {
                         onTabClickListener.onTabClicked(i);
