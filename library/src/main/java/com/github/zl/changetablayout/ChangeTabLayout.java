@@ -275,9 +275,6 @@ public class ChangeTabLayout extends ScrollView{
             return;
         }
 
-        if(flag){
-
-        }
         LinearLayout selectedTab = (LinearLayout) getTabAt(tabIndex);
 
         if (0f <= positionOffset && positionOffset < 1f) {
