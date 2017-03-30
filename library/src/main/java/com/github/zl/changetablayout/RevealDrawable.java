@@ -1,6 +1,5 @@
 package com.github.zl.changetablayout;
 
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
@@ -22,21 +21,23 @@ import android.view.Gravity;
  *  |XXXX|    |    |     |XX  |     |  XX|
  *
  * Created by rharter on 4/18/14.
+ * Updated by weilu on 2017/3/30.
  */
 class RevealDrawable extends Drawable implements Drawable.Callback {
 
-    private RevealState mRevealState;
+    private int mOrientation;
+    private Drawable mSelectedDrawable;
+    private Drawable mUnselectedDrawable;
     private final Rect mTmpRect = new Rect();
 
     static final int HORIZONTAL = 1;
     static final int VERTICAL = 2;
 
     RevealDrawable(Drawable unselected, Drawable selected, int orientation) {
-        this(null, null);
 
-        mRevealState.mUnselectedDrawable = unselected;
-        mRevealState.mSelectedDrawable = selected;
-        mRevealState.mOrientation = orientation;
+        mUnselectedDrawable = unselected;
+        mSelectedDrawable = selected;
+        mOrientation = orientation;
 
         if (unselected != null) {
             unselected.setCallback(this);
@@ -47,7 +48,7 @@ class RevealDrawable extends Drawable implements Drawable.Callback {
     }
 
     public void setOrientation(int orientation){
-        mRevealState.mOrientation = orientation;
+        mOrientation = orientation;
     }
 
     @Override
@@ -75,35 +76,23 @@ class RevealDrawable extends Drawable implements Drawable.Callback {
     }
 
     @Override
-    public int getChangingConfigurations() {
-        return super.getChangingConfigurations()
-                | mRevealState.mChangingConfigurations
-                | mRevealState.mUnselectedDrawable.getChangingConfigurations()
-                | mRevealState.mSelectedDrawable.getChangingConfigurations();
-    }
-
-    @Override
     public boolean getPadding(@NonNull Rect padding) {
         // XXX need to adjust padding!
-        return mRevealState.mSelectedDrawable.getPadding(padding);
+        return mSelectedDrawable.getPadding(padding);
     }
 
     @Override
     public boolean setVisible(boolean visible, boolean restart) {
-        mRevealState.mUnselectedDrawable.setVisible(visible, restart);
-        mRevealState.mSelectedDrawable.setVisible(visible, restart);
+        mUnselectedDrawable.setVisible(visible, restart);
+        mSelectedDrawable.setVisible(visible, restart);
         return super.setVisible(visible, restart);
     }
 
     @Override
-    public void setAlpha(int alpha) {
-
-    }
+    public void setAlpha(int alpha) {}
 
     @Override
-    public void setColorFilter(ColorFilter cf) {
-
-    }
+    public void setColorFilter(ColorFilter cf) {}
 
     @Override
     public int getOpacity() {
@@ -112,14 +101,14 @@ class RevealDrawable extends Drawable implements Drawable.Callback {
 
     @Override
     protected void onBoundsChange(Rect bounds) {
-        mRevealState.mUnselectedDrawable.setBounds(bounds);
-        mRevealState.mSelectedDrawable.setBounds(bounds);
+        mUnselectedDrawable.setBounds(bounds);
+        mSelectedDrawable.setBounds(bounds);
     }
 
     @Override
     protected boolean onLevelChange(int level) {
-        mRevealState.mUnselectedDrawable.setLevel(level);
-        mRevealState.mSelectedDrawable.setLevel(level);
+        mUnselectedDrawable.setLevel(level);
+        mSelectedDrawable.setLevel(level);
         invalidateSelf();
         return true;
     }
@@ -130,12 +119,12 @@ class RevealDrawable extends Drawable implements Drawable.Callback {
         // If level == 10000 || level == 0, just draw the unselected image
         int level = getLevel();
         if (level == 10000 || level == 0) {
-            mRevealState.mUnselectedDrawable.draw(canvas);
+            mUnselectedDrawable.draw(canvas);
         }
 
         // If level == 5000 just draw the selected image
         else if (level == 5000) {
-            mRevealState.mSelectedDrawable.draw(canvas);
+            mSelectedDrawable.draw(canvas);
         }
 
         // Else, draw the transitional version
@@ -146,16 +135,16 @@ class RevealDrawable extends Drawable implements Drawable.Callback {
             { // Draw the unselected portion
                 float value = (level / 5000f) - 1f;
                 int w = bounds.width();
-                if ((mRevealState.mOrientation & HORIZONTAL) != 0) {
+                if ((mOrientation & HORIZONTAL) != 0) {
                     w = (int) (w * Math.abs(value));
                 }
                 int h = bounds.height();
-                if ((mRevealState.mOrientation & VERTICAL) != 0) {
+                if ((mOrientation & VERTICAL) != 0) {
                     h = (int) (h * Math.abs(value));
                 }
 
                 int gravity;
-                if ((mRevealState.mOrientation & HORIZONTAL) != 0) {
+                if ((mOrientation & HORIZONTAL) != 0) {
                     gravity = value < 0 ? Gravity.LEFT : Gravity.RIGHT;
                 }else {
                     gravity = value < 0 ? Gravity.BOTTOM : Gravity.TOP;
@@ -166,7 +155,7 @@ class RevealDrawable extends Drawable implements Drawable.Callback {
                 if (w > 0 && h > 0) {
                     canvas.save();
                     canvas.clipRect(r);
-                    mRevealState.mUnselectedDrawable.draw(canvas);
+                    mUnselectedDrawable.draw(canvas);
                     canvas.restore();
                 }
             }
@@ -174,16 +163,16 @@ class RevealDrawable extends Drawable implements Drawable.Callback {
             { // Draw the selected portion
                 float value = (level / 5000f) - 1f;
                 int w = bounds.width();
-                if ((mRevealState.mOrientation & HORIZONTAL) != 0) {
+                if ((mOrientation & HORIZONTAL) != 0) {
                     w -= (int) (w * Math.abs(value));
                 }
                 int h = bounds.height();
-                if ((mRevealState.mOrientation & VERTICAL) != 0) {
+                if ((mOrientation & VERTICAL) != 0) {
                     h -= (int) (h * Math.abs(value));
                 }
 
                 int gravity;
-                if ((mRevealState.mOrientation & HORIZONTAL) != 0) {
+                if ((mOrientation & HORIZONTAL) != 0) {
                     gravity = value < 0 ? Gravity.RIGHT : Gravity.LEFT;
                 }else {
                     gravity = value < 0 ? Gravity.TOP : Gravity.BOTTOM;
@@ -194,7 +183,7 @@ class RevealDrawable extends Drawable implements Drawable.Callback {
                 if (w > 0 && h > 0) {
                     canvas.save();
                     canvas.clipRect(r);
-                    mRevealState.mSelectedDrawable.draw(canvas);
+                    mSelectedDrawable.draw(canvas);
                     canvas.restore();
                 }
             }
@@ -203,78 +192,14 @@ class RevealDrawable extends Drawable implements Drawable.Callback {
 
     @Override
     public int getIntrinsicWidth() {
-        return Math.max(mRevealState.mSelectedDrawable.getIntrinsicWidth(),
-                mRevealState.mUnselectedDrawable.getIntrinsicWidth());
+        return Math.max(mSelectedDrawable.getIntrinsicWidth(),
+                mUnselectedDrawable.getIntrinsicWidth());
     }
 
     @Override
     public int getIntrinsicHeight() {
-        return Math.max(mRevealState.mSelectedDrawable.getIntrinsicHeight(),
-                mRevealState.mUnselectedDrawable.getIntrinsicHeight());
+        return Math.max(mSelectedDrawable.getIntrinsicHeight(),
+                mUnselectedDrawable.getIntrinsicHeight());
     }
 
-    @Override
-    public ConstantState getConstantState() {
-        if (mRevealState.canConstantState()) {
-            mRevealState.mChangingConfigurations = getChangingConfigurations();
-            return mRevealState;
-        }
-        return null;
-    }
-
-    private final static class RevealState extends ConstantState {
-        Drawable mSelectedDrawable;
-        Drawable mUnselectedDrawable;
-        int mChangingConfigurations;
-        int mOrientation;
-
-        private boolean mCheckedConstantState;
-        private boolean mCanConstantState;
-
-        RevealState(RevealState orig, RevealDrawable owner, Resources res) {
-            if (orig != null) {
-                if (res != null) {
-                    mSelectedDrawable = orig.mSelectedDrawable.getConstantState().newDrawable(res);
-                    mUnselectedDrawable = orig.mUnselectedDrawable.getConstantState().newDrawable(res);
-                } else {
-                    mSelectedDrawable = orig.mSelectedDrawable.getConstantState().newDrawable();
-                    mUnselectedDrawable = orig.mUnselectedDrawable.getConstantState().newDrawable();
-                }
-                mSelectedDrawable.setCallback(owner);
-                mUnselectedDrawable.setCallback(owner);
-                mOrientation = orig.mOrientation;
-                mCheckedConstantState = mCanConstantState = true;
-            }
-        }
-
-        @NonNull
-        @Override
-        public Drawable newDrawable() {
-            return new RevealDrawable(this, null);
-        }
-
-        @NonNull
-        @Override
-        public Drawable newDrawable(Resources res) {
-            return new RevealDrawable(this, res);
-        }
-
-        @Override
-        public int getChangingConfigurations() {
-            return mChangingConfigurations;
-        }
-
-        boolean canConstantState() {
-            if (!mCheckedConstantState) {
-                mCanConstantState = mSelectedDrawable.getConstantState() != null
-                        && mUnselectedDrawable.getConstantState() != null;
-                mCheckedConstantState = true;
-            }
-            return mCanConstantState;
-        }
-    }
-
-    private RevealDrawable(RevealState state, Resources res) {
-        mRevealState = new RevealState(state, this, res);
-    }
 }
