@@ -21,9 +21,9 @@ import android.view.Gravity;
  *  |XXXX|    |    |     |XX  |     |  XX|
  *
  * Created by rharter on 4/18/14.
- * Updated by weilu on 2017/3/30.
+ * Updated by weilu on 2017/3/30. (Remove excess code.)
  */
-class RevealDrawable extends Drawable implements Drawable.Callback {
+class RevealDrawable extends Drawable{
 
     private int mOrientation;
     private Drawable mSelectedDrawable;
@@ -38,41 +38,10 @@ class RevealDrawable extends Drawable implements Drawable.Callback {
         mUnselectedDrawable = unselected;
         mSelectedDrawable = selected;
         mOrientation = orientation;
-
-        if (unselected != null) {
-            unselected.setCallback(this);
-        }
-        if (selected != null) {
-            selected.setCallback(this);
-        }
     }
 
     public void setOrientation(int orientation){
         mOrientation = orientation;
-    }
-
-    @Override
-    public void invalidateDrawable(@NonNull Drawable who) {
-        final Callback callback = getCallback();
-        if (callback != null) {
-            callback.invalidateDrawable(this);
-        }
-    }
-
-    @Override
-    public void scheduleDrawable(@NonNull Drawable who, @NonNull Runnable what, long when) {
-        final Callback callback = getCallback();
-        if (callback != null) {
-            callback.scheduleDrawable(this, what, when);
-        }
-    }
-
-    @Override
-    public void unscheduleDrawable(@NonNull Drawable who, @NonNull Runnable what) {
-        final Callback callback = getCallback();
-        if (callback != null) {
-            callback.unscheduleDrawable(this, what);
-        }
     }
 
     @Override
