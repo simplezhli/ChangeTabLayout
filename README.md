@@ -91,8 +91,7 @@ app:ctl_selectedTabImageColor | 默认为#cf212b | Tab中图片选中颜色
 
 ## 实现过程
 
-具体参考我博客：http://blog.csdn.net/qq_17766199
-还没有写。。。清明节假期整理一下。
+具体参考这篇博客：[ChangeTabLayout实现过程](http://blog.csdn.net/qq_17766199/article/details/68941610)
 
 ## TODO
 

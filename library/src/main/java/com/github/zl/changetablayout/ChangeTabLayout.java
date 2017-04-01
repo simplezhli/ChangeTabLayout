@@ -22,7 +22,6 @@ import android.support.v4.view.VerticalViewPager;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -52,9 +51,6 @@ public class ChangeTabLayout extends ScrollView{
     private boolean flag = false;
     private final int tabViewHeight;
     private final int tabImageHeight;
-    private float tabViewTextSize;
-    private final int defaultTabTextColor;
-    private final int selectedTabTextColor;
     private final int defaultTabImageColor;
     private final int selectedTabImageColor;
 
@@ -89,29 +85,20 @@ public class ChangeTabLayout extends ScrollView{
         final DisplayMetrics dm = getResources().getDisplayMetrics();
         density = dm.density;
 
-        float textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, Constant.TAB_VIEW_TEXT_SIZE_SP, dm);
         int tabViewHeight = (int) (Constant.TAB_VIEW_HEIGHT * density);
         int tabImageHeight = (int) (Constant.TAB_IMAGE_HEIGHT * density);
-        int defaultTabTextColor = Constant.GRAY;
-        int selectedTabTextColor = Constant.WHITE;
         int defaultTabImageColor = Constant.GRAY;
         int selectedTabImageColor = Constant.RED;
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ChangeTabLayout);
-        textSize = a.getDimension(R.styleable.ChangeTabLayout_ctl_defaultTabTextSize, textSize);
         tabViewHeight = a.getDimensionPixelSize(R.styleable.ChangeTabLayout_ctl_tabViewHeight, tabViewHeight);
         tabImageHeight = a.getDimensionPixelSize(R.styleable.ChangeTabLayout_ctl_tabImageHeight, tabImageHeight);
-        defaultTabTextColor = a.getColor(R.styleable.ChangeTabLayout_ctl_defaultTabTextColor, defaultTabTextColor);
-        selectedTabTextColor = a.getColor(R.styleable.ChangeTabLayout_ctl_selectedTabTextColor, selectedTabTextColor);
         defaultTabImageColor = a.getColor(R.styleable.ChangeTabLayout_ctl_defaultTabImageColor, defaultTabImageColor);
         selectedTabImageColor = a.getColor(R.styleable.ChangeTabLayout_ctl_selectedTabImageColor, selectedTabImageColor);
         a.recycle();
 
-        this.tabViewTextSize = textSize;
         this.tabViewHeight = tabViewHeight;
         this.tabImageHeight = tabImageHeight;
-        this.defaultTabTextColor = defaultTabTextColor;
-        this.selectedTabTextColor = selectedTabTextColor;
         this.defaultTabImageColor = defaultTabImageColor;
         this.selectedTabImageColor = selectedTabImageColor;
 
