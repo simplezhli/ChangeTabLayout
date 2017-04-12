@@ -96,7 +96,7 @@ app:ctl_selectedTabImageColor | 默认为#cf212b | Tab中图片选中颜色
 ## TODO
 
 1. ~~`TabView`中兼容多行文字。~~
-2. 竖屏状态下`ViewPage`的`onPageScrolled`监听不正常。
+2. ~~竖屏状态下`ViewPage`的`onPageScrolled`监听不正常。~~
 
 ## Thanks For
 
