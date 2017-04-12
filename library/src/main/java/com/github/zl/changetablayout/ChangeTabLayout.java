@@ -307,6 +307,14 @@ public class ChangeTabLayout extends ScrollView{
         if (page != p){
             return;
         }
+        //竖屏状态下`ViewPage`的`onPageScrolled`监听不正常修复（统一数据）
+        if (positionOffset > 0.99 && positionOffset < 1){
+            positionOffset = 0;
+            position = position + 1;
+        }else if (positionOffset < 0.01 && positionOffset > 0.00001){
+            positionOffset = 0;
+        }
+
         if (position - lastPosition[page] > 0) {
             if (lastPosition[page] != ARRAY_INITIAL_VALUE){
                 tabLayoutState = false; //每次向左滑动结束时，进入判断，菜单关闭状态
