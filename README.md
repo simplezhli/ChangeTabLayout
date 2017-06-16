@@ -1,5 +1,7 @@
 # ChangeTabLayout
 
+[![Stars](https://img.shields.io/github/stars/simplezhli/ChangeTabLayout.svg)](https://github.com/simplezhli/ChangeTabLayout/stargazers) [![LICENSE](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/simplezhli/ChangeTabLayout/master/LICENSE) [![作者](https://img.shields.io/badge/%E4%BD%9C%E8%80%85-weilu-orange.svg)](http://blog.csdn.net/qq_17766199)
+
 ChangeTabLayout是模仿乐视LIVE App主界面TabLayout效果。
 
 ## Preview
