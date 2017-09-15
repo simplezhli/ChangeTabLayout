@@ -247,7 +247,7 @@ public class ChangeTabLayout extends ScrollView{
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_MOVE:
                     flag = true;
                     break;
             }
