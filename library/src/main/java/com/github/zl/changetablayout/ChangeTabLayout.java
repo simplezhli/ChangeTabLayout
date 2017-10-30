@@ -22,6 +22,7 @@ import android.support.v4.view.VerticalViewPager;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -53,6 +54,10 @@ public class ChangeTabLayout extends ScrollView{
     private final int tabImageHeight;
     private final int defaultTabImageColor;
     private final int selectedTabImageColor;
+    private float textSize;
+    private int indicatorPadding;
+    private int defaultTabTextColor;
+    private int selectedTabTextColor;
 
     private VerticalViewPager viewPager;
     private final ChangeTabStrip tabStrip;
@@ -61,7 +66,6 @@ public class ChangeTabLayout extends ScrollView{
     private InternalTabClickListener internalTabClickListener;
 
     private float density = 0;
-    private AttributeSet attrs;
     private int page = 0; //当前页数位置
 
     public ChangeTabLayout(Context context) {
@@ -74,7 +78,6 @@ public class ChangeTabLayout extends ScrollView{
 
     public ChangeTabLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        this.attrs = attrs;
         //禁用滚动条
         setVerticalScrollBarEnabled(false);
         //去除阴影
@@ -89,18 +92,30 @@ public class ChangeTabLayout extends ScrollView{
         int tabImageHeight = (int) (Constant.TAB_IMAGE_HEIGHT * density);
         int defaultTabImageColor = Constant.GRAY;
         int selectedTabImageColor = Constant.RED;
+        int indicatorPadding = (int) (Constant.SELECTED_INDICATOR_PADDING_DIPS * density);
+        float textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, Constant.TAB_VIEW_TEXT_SIZE_SP, dm);
+        int defaultTabTextColor = Constant.GRAY;
+        int selectedTabTextColor = Constant.WHITE;
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ChangeTabLayout);
         tabViewHeight = a.getDimensionPixelSize(R.styleable.ChangeTabLayout_ctl_tabViewHeight, tabViewHeight);
         tabImageHeight = a.getDimensionPixelSize(R.styleable.ChangeTabLayout_ctl_tabImageHeight, tabImageHeight);
         defaultTabImageColor = a.getColor(R.styleable.ChangeTabLayout_ctl_defaultTabImageColor, defaultTabImageColor);
         selectedTabImageColor = a.getColor(R.styleable.ChangeTabLayout_ctl_selectedTabImageColor, selectedTabImageColor);
+        textSize = a.getDimension(R.styleable.ChangeTabLayout_ctl_defaultTabTextSize, textSize);
+        defaultTabTextColor = a.getColor(R.styleable.ChangeTabLayout_ctl_defaultTabTextColor, defaultTabTextColor);
+        selectedTabTextColor = a.getColor(R.styleable.ChangeTabLayout_ctl_selectedTabTextColor, selectedTabTextColor);
+        indicatorPadding = a.getDimensionPixelSize(R.styleable.ChangeTabLayout_ctl_indicatorPadding, indicatorPadding);
         a.recycle();
 
         this.tabViewHeight = tabViewHeight;
         this.tabImageHeight = tabImageHeight;
         this.defaultTabImageColor = defaultTabImageColor;
         this.selectedTabImageColor = selectedTabImageColor;
+        this.textSize = textSize;
+        this.indicatorPadding = indicatorPadding;
+        this.defaultTabTextColor = defaultTabTextColor;
+        this.selectedTabTextColor = selectedTabTextColor;
 
         this.tabStrip = new ChangeTabStrip(context, attrs);
         this.internalTabClickListener = new InternalTabClickListener();
@@ -196,7 +211,11 @@ public class ChangeTabLayout extends ScrollView{
 
         imageView.setImageDrawable(drawable);
 
-        ChangeTextView textView = new ChangeTextView(getContext(), attrs);
+        ChangeTextView textView = new ChangeTextView(getContext());
+        textView.setDefaultTabTextColor(defaultTabTextColor);
+        textView.setSelectedTabTextColor(selectedTabTextColor);
+        textView.setIndicatorPadding(indicatorPadding);
+        textView.setTabViewTextSize(textSize);
         textView.setText(title.toString());
         textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
@@ -361,6 +380,9 @@ public class ChangeTabLayout extends ScrollView{
                 }
             }
 
+            if (positionOffset > 0.98){
+                positionOffset = 1;
+            }
             tabStrip.onViewPagerPageChanged(positionOffset);
         }
     }
